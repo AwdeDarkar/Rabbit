@@ -22,10 +22,10 @@ Design
 
 This is the first project I have worked on where I have some real conception of the 'right way' to
 do this sort of thing. I am using `Sphinx <https://http://www.sphinx-doc.org>`_ to generate
-documentation, `Pytest <https://docs.pytest.org/en/latest/>` to test the code (with mostly dev-ops
+documentation, `Pytest <https://docs.pytest.org/en/latest/>`_ to test the code (with mostly dev-ops
 inspired test-driven development), and `Pylint <https://www.pylint.org/>`_ to ensure my code stays
 in spec with my coding standard (very close, though not precisely, `PEP 8 
-<https://www.python.org/dev/peps/pep-0008/>`_.
+<https://www.python.org/dev/peps/pep-0008/>`_).
 
 Further, in order to aid in doing things the 'right way' I am writing out the requirements of this
 project *very explicitly* and separating them into minimum-viable-product (MVP), expected product,
@@ -34,8 +34,8 @@ and a catch-all list of other cool features I'd like to add at some point.
 Minimum:
 
     * Collects *predictions* of discrete events (events that can happen in one of a few distinct
-      ways) where a 'prediction' is a vector, :math: `v`, made of probabilities, :math: `p`, such
-      that :math: `p\in[0,1)\land\sum{v}=1`.
+      ways) where a 'prediction' is a vector, :math:`v`, made of probabilities, :math:`p`, such
+      that :math:`p\in[0,1)\land\sum{v}=1`.
     * Associates predictions with *outcomes*, a one-hot vector of the same length as the associated
       prediction.
     * Records the timestamp of both the predictions and the outcomes.
