@@ -1,0 +1,17 @@
+# Generic python
+__pycache__/
+*.py[cod]
+*$.py.class
+
+# Pytest
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+
+# Sphinx
+docs/build/
+
+# Flask
+instance/
+.webassets-cache
