@@ -16,6 +16,7 @@ Outcome
 */
 
 drop table predictions;
+drop table probabilities;
 drop table outcomes;
 
 /*
@@ -30,6 +31,13 @@ create table predictions (
     description text
 );
 
+/*
+Columns
+    :id: primary key
+    :pid: prediction to which this probability is tied
+    :probability: integer in [0, 255] interpreted as a fixed-point real in [0, 1)
+    :even: the specific event or outcome to which this probability refers
+*/
 create table probabilities (
     id integer primary key autoincrement,
     pid integer not null,
@@ -41,9 +49,9 @@ create table probabilities (
 /*
 Columns
     :id: primary key
+    :pid: id of the prediction this outcome refers to
     :oid: id of the probability entry for the outcome that occured
     :created: timestamp of the creation of this prediction
-    :description: description of the event this is predicting; first line is interpreted as name
 */
 create table outcomes (
     id integer primary key autoincrement,
