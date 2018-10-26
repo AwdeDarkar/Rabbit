@@ -61,7 +61,7 @@ class PredictionInterface(DatabaseInterface):
         self.probabilities = {}
         self.outcome = None
 
-    def get_vectors(self):
+    def get_vectors(self, pad=0):
         """
         Returns vectors for the predicted probabilites and, if it exist, a one-hot vector that
         encodes the outcome.
@@ -74,6 +74,10 @@ class PredictionInterface(DatabaseInterface):
                 outs.append(1)
             else:
                 outs.append(0)
+        delta = pad - len(preds)
+        if delta > 0:
+            preds += [0]*delta
+            outs += [0]*delta
         return preds, outs if self.outcome else None
 
     def load(self):
