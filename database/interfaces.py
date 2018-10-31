@@ -1,5 +1,5 @@
 """
-INTERFACES
+interfaces
 ====================================================================================================
 
 Interfaces to the database for managing rows as objects.

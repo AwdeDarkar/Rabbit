@@ -9,11 +9,9 @@ Tools to score a list of predictions.
 **Created**
     10.26.18
 **Updated**
-    10.26.18 by Ben Croisdale
+    10.26.18 by Darkar
 **Author**
-    Ben Croisdale
-**Copyright**
-    This code is property of HEAT LLC Copyright HEAT LLC 2018 (c)
+    Darkar
 """
 
 import numpy as np
