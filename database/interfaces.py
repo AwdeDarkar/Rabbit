@@ -9,7 +9,7 @@ Interfaces to the database for managing rows as objects.
 **Created**
     10.22.18
 **Updated**
-    10.24.18 by Darkar
+    11.01.18 by Darkar
 **Author**
     Darkar
 """
@@ -51,7 +51,7 @@ class DatabaseInterface:
 class PredictionInterface(DatabaseInterface):
     """ Manage predictions and outcomes """
 
-    def __init__(self, rid, cursor):
+    def __init__(self, rid=-1, cursor=None):
         super(PredictionInterface, self).__init__(rid, cursor)
 
         self.name = "Unnamed"
@@ -79,6 +79,15 @@ class PredictionInterface(DatabaseInterface):
             preds += [0]*delta
             outs += [0]*delta
         return preds, outs if self.outcome else None
+
+    def get_id(self):
+        """ Get the unique id of the prediction in the database """
+        return self._rid
+
+    def resolve(self, outcome):
+        """ Resolve the prediction with the outcome now """
+        self.resolved = datetime.now()
+        self.outcome = outcome
 
     def load(self):
         find_predictions_query = """ select created, description from predictions

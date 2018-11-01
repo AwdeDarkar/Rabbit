@@ -1,5 +1,5 @@
 """
-predictions
+api functions
 ====================================================================================================
 
 A RESTful interface with the predictions system.
@@ -59,6 +59,10 @@ def select_list(db_conn, criteria):
     if "unresolved" in criteria:
         filters.append(lambda p: not p.resolved)
 
+    if "id_in" in criteria:
+        ids = criteria["id_in"]
+        filters.append(lambda p: p in ids)
+
     def f(prob):
         """ Check all of the filters """
         for filt in filters:
@@ -68,7 +72,25 @@ def select_list(db_conn, criteria):
     return PredictionInterface.create_all(db_conn, test=f)
 
 def create_predictions(db_conn, new_predictions):
-    pass
+    """ Create a list of predictions in ``db_conn`` defined by ``new_predictions`` """
+    cursor = db_conn.cursor()
+    for n_pred in new_predictions:
+        pred = PredictionInterface(cursor=cursor)
+        pred.name = n_pred["name"]
+        pred.description = n_pred["description"]
+        pred.created = datetime.now()
+        for event in n_pred["events"]:
+            pred.probabilities[event] = n_pred["events"][event]
 
-def resolve_predictions(db, res_predictions):
-    pass
+        if not pred.save(): return False
+
+    return True
+
+
+def resolve_predictions(db_conn, res_predictions):
+    """ Resolve the predictions with the given ids """
+    ids = res_predictions.keys()
+    preds = select_list(db_conn, criteria={"id_in" : ids})
+    for pred in preds:
+        pred.resolve(res_predictions[pred.get_id()])
+        pred.save()
