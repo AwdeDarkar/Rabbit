@@ -9,17 +9,18 @@ A RESTful interface with the predictions system.
 **Created**
     10.30.18
 **Updated**
-    10.31.18 by Darkar
+    11.06.18 by Darkar
 **Author**
     Darkar
 **Copyright**
     This code is Free and Open Source for any purpose; it is provided as-is without warranty.
 """
+from __future__ import absolute_import
 
 from enum import Enum
 from datetime import datetime
 
-from ..database.interfaces import PredictionInterface
+from ..database.interfaces import PredictionInterface #pylint: disable=import-error
 
 class RequestType(Enum):
     """ Different general forms an API request can take """

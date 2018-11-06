@@ -50,3 +50,8 @@ def init_db_command():
     """ Click command to call ``init_db`` """
     init_db()
     click.echo("Database initialized")
+
+def init_app(app):
+    """ Initialize the app with the database """
+    app.teardown_appcontext(close_db)
+    app.cli.add_command(init_db_command)
