@@ -15,9 +15,9 @@ Outcome
     timestamp
 */
 
-drop table predictions;
-drop table probabilities;
-drop table outcomes;
+drop table if exists predictions;
+drop table if exists probabilities;
+drop table if exists outcomes;
 
 /*
 Columns

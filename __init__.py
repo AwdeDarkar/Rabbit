@@ -20,6 +20,7 @@ import os
 
 from flask import Flask
 from flask import g
+from flask import request
 
 from .database import manage_db
 from .predict.api_functions import process_api_call
@@ -55,7 +56,8 @@ def create_app(test_config=None):
     @app.route("/api", methods=["POST"])
     def web_api(): #pylint: disable=unused-variable
         """ Accept POST requests here """
-        response = process_api_call(g.db, request) #pylint: disable=undefined-variable
+        conn = manage_db.get_db()
+        response = process_api_call(conn, request) #pylint: disable=undefined-variable
         if response: return response
         return "{ 'error' : 'true' }"
 
