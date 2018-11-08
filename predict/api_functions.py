@@ -45,7 +45,7 @@ def process_api_call(db_conn, request):
     if rtype == RequestType.SELECT_LIST: return select_list(db_conn, data["resolutions"])
     return None
 
-def select_list(db_conn, criteria):
+def select_list(db_conn, criteria={}): #pylint: disable=dangerous-default-value
     """ Select a list of predictions from ``db_conn`` matching ``criteria`` """
     filters = []
 

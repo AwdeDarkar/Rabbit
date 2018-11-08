@@ -22,6 +22,7 @@ from flask.cli import with_appcontext
 
 def get_db():
     """ Return a reference to the database connection and create it if it doesn't exist """
+    print(g)
     if "db" not in g:
         g.db = sqlite3.connect(
             current_app.config["DATABASE"],
@@ -50,8 +51,3 @@ def init_db_command():
     """ Click command to call ``init_db`` """
     init_db()
     click.echo("Database initialized")
-
-def init_app(app):
-    """ Initialize the app with the database """
-    app.teardown_appcontext(close_db)
-    app.cli.add_command(init_db_command)

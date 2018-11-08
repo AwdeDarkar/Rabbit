@@ -24,6 +24,7 @@ from flask import request
 
 from .database import manage_db
 from .predict.api_functions import process_api_call
+from .predict import click_functions
 
 def create_app(test_config=None):
     """ Create the Flask app """
@@ -44,7 +45,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    manage_db.init_app(app)
+    app.teardown_appcontext(manage_db.close_db)
+    app.cli.add_command(manage_db.init_db_command)
+    app.cli.add_command(click_functions.construct_command)
+    app.cli.add_command(click_functions.list_all_command)
 
     @app.route("/")
     def index(): #pylint: disable=unused-variable
