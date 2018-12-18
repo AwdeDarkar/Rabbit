@@ -35,12 +35,12 @@ Minimum:
 
     * Collects *predictions* of discrete events (events that can happen in one of a few distinct
       ways) where a 'prediction' is a vector, :math:`v`, made of probabilities, :math:`p`, such
-      that :math:`p\in[0,1)\land\sum{v}=1`.
+      that :math:`p\in[0,1)\land\sum{v}=1`. [Done]
     * Associates predictions with *outcomes*, a one-hot vector of the same length as the associated
-      prediction.
-    * Records the timestamp of both the predictions and the outcomes.
+      prediction. [Done]
+    * Records the timestamp of both the predictions and the outcomes. [Done]
     * Scores the predictions with outcomes in an arbitrary time interval using the `Brier score
-      <https://en.wikipedia.org/wiki/Brier_score>`_.
+      <https://en.wikipedia.org/wiki/Brier_score>`_. [Done]
     * Exposes these features through a command-line and web API (either RESTful or GraphQL,
       haven't decided yet).
 

@@ -1,0 +1,20 @@
+<!doctype html>
+<head>
+    <title>{% block title %}{% endblock %} - Rabbit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<section class="content">
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    
+    <div id="active_predictions">
+        <h2>No active predictions</h2>
+    </div>
+
+    <div id="score">
+        <h2>Current Score</h2>
+        <p>No score generated</p>
+    </div>
+</section>
