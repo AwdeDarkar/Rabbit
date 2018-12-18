@@ -9,7 +9,7 @@ Tools to open, create, and interface with the sqlite database.
 **Created**
     10.22.18
 **Updated**
-    10.22.18 by Darkar
+    12.18.18 by Darkar
 **Author**
     Darkar
 """
@@ -22,7 +22,6 @@ from flask.cli import with_appcontext
 
 def get_db():
     """ Return a reference to the database connection and create it if it doesn't exist """
-    print(g)
     if "db" not in g:
         g.db = sqlite3.connect(
             current_app.config["DATABASE"],

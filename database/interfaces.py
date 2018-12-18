@@ -9,7 +9,7 @@ Interfaces to the database for managing rows as objects.
 **Created**
     10.22.18
 **Updated**
-    11.01.18 by Darkar
+    12.18.18 by Darkar
 **Author**
     Darkar
 """
@@ -24,7 +24,8 @@ class DatabaseInterface:
         self._rid = rid
 
     def __del__(self):
-        self.save()
+        pass
+        #self.save()
 
     def load(self): #pylint: disable=no-self-use
         """ Loads the object from the database, returns True if successful """
@@ -41,7 +42,7 @@ class DatabaseInterface:
         Generator to create all of the interfaces accessible over the connection which pass an
         optional test.
         """
-        i = 0
+        i = 1
         obj = cls(i, conn.cursor())
         while obj.load():
             if test(obj): yield obj
@@ -92,16 +93,17 @@ class PredictionInterface(DatabaseInterface):
     def load(self):
         find_predictions_query = """ select created, description from predictions
                                      where id = ?"""
-        self._cursor.execute(find_predictions_query, self._rid)
-        timestamp, full_description = self._cursor.fetchone()
-        if not timestamp: return False
-        self.created = datetime.utcfromtimestamp(timestamp)
+        self._cursor.execute(find_predictions_query, (self._rid,))
+        result = self._cursor.fetchone()
+        if not result: return False
+        timestamp, full_description = result
+        self.created = timestamp
         desc_lines = full_description.split("\n")
         self.name, self.description = desc_lines[0], "\n".join(full_description[1:])
 
         find_probabilities_query = """ select probability, event from probabilities
                                      where pid = ? """
-        self._cursor.execute(find_probabilities_query, self._rid)
+        self._cursor.execute(find_probabilities_query, (self._rid,))
         for row in self._cursor.fetchall():
             probability, event = row
             self.probabilities[event] = probability
@@ -112,7 +114,7 @@ class PredictionInterface(DatabaseInterface):
                                  from probabilites, outcomes
                                  where probabilities.pid = ?
                                  and probabilities.id = outcomes.oid """
-        self._cursor.execute(find_outcome_query, self._rid)
+        self._cursor.execute(find_outcome_query, (self._rid,))
         outcome, resolved = self._cursor.fetchone()
         if outcome and resolved:
             self.outcome = outcome
@@ -122,7 +124,7 @@ class PredictionInterface(DatabaseInterface):
 
     def save(self):
         check_existing_query = """ select * from predictions where id = ? """
-        self._cursor.execute(check_existing_query, self._rid)
+        self._cursor.execute(check_existing_query, (self._rid,))
 
         if self._cursor.fetchone():
             #UPDATE
@@ -131,7 +133,8 @@ class PredictionInterface(DatabaseInterface):
                                            where id = ? """
             timestamp = self.created.timestamp()
             full_description = self.name + "\n" + self.description
-            self._cursor.execute(update_predictions_query, timestamp, full_description, self._rid)
+            self._cursor.execute(update_predictions_query,
+                                 (timestamp, full_description, self._rid,))
             self._cursor.commit()
 
             for event in self.probabilities:
@@ -139,42 +142,44 @@ class PredictionInterface(DatabaseInterface):
                                                  set probability = ?
                                                  where event = ? and pid = ? """
                 probability = self.probabilities[event]
-                self._cursor.execute(update_probabilities_query, probability, event, self._rid)
+                self._cursor.execute(update_probabilities_query, (probability, event, self._rid,))
                 self._cursor.commit()
 
         else:
             #INSERT
-            insert_predictions_query = """ insert into predictions (created, decription)
+            insert_predictions_query = """ insert into predictions (created, description)
                                            values (?, ?) """
             timestamp = self.created.timestamp()
             full_description = self.name + "\n" + self.description
-            self._cursor.execute(insert_predictions_query, timestamp, full_description)
-            self._cursor.commit()
+            self._cursor.execute(insert_predictions_query, (timestamp, full_description,))
+            self._cursor.connection.commit()
 
             for event in self.probabilities:
                 insert_probabilities_query = """ insert into probabilities (pid, probability, event)
                                                  values (?, ?, ?) """
                 probability = self.probabilities[event]
-                self._cursor.execute(insert_probabilities_query, self._rid, probability, event)
-                self._cursor.commit()
+                self._cursor.execute(insert_probabilities_query, (self._rid, probability, event,))
+                self._cursor.connection.commit()
 
         find_outcome_id_query = """ select id from probabilities where event = ? and pid = ? """
-        self._cursor.execute(find_outcome_id_query, self.outcome, self._rid)
-        oid = self._cursor.fetcheone()
+        self._cursor.execute(find_outcome_id_query, (self.outcome, self._rid,))
+        oid = self._cursor.fetchone()
 
-        check_existing_outcome_query = """ select * from outcomes where pid = ? """
-        self._cursor.execute(check_existing_outcome_query, self._rid)
-        if self._cursor.fetchone():
-            update_outcomes_query = """ update outcomes
-                                        set created = ?, oid = ?
-                                        where pid = ? """
-            timestamp = self.resolved.timestamp()
-            self._cursor.execute(update_outcomes_query, timestamp, oid, self._rid)
-            self._cursor.commit()
-        else:
-            insert_outcomes_query = """ insert into outcomes (pid, oid, created)
-                                        values (?, ?, ?) """
-            timestamp = self.resolved.timestamp()
-            self._cursor.execute(insert_outcomes_query, self._rid, oid, timestamp)
+        if self.resolved:
+            check_existing_outcome_query = """ select * from outcomes where pid = ? """
+            self._cursor.execute(check_existing_outcome_query, (self._rid,))
+            if self._cursor.fetchone():
+                update_outcomes_query = """ update outcomes
+                                            set created = ?, oid = ?
+                                            where pid = ? """
+                timestamp = self.resolved.timestamp()
+                self._cursor.execute(update_outcomes_query, (timestamp, oid, self._rid,))
+                self._cursor.connection.commit()
+            else:
+                insert_outcomes_query = """ insert into outcomes (pid, oid, created)
+                                            values (?, ?, ?) """
+                timestamp = self.resolved.timestamp()
+                self._cursor.execute(insert_outcomes_query, (self._rid, oid, timestamp,))
+                self._cursor.connection.commit()
 
         return True

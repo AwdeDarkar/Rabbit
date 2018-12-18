@@ -51,9 +51,9 @@ def construct_command(name, description, event):
                 event[-1] = (event[-1], itm)
             else:
                 event.append(itm)
-    prediction["event"] = {}
+    prediction["events"] = {}
     for evt in event:
-        prediction["event"][evt[0]] = evt[1]
+        prediction["events"][evt[0]] = evt[1]
 
     db = manage_db.get_db()
     create_predictions(db, [prediction])
@@ -65,4 +65,5 @@ def list_all_command():
     db = manage_db.get_db()
     preds = select_list(db)
     for pred in preds:
+        print("listing")
         click.echo(pred)

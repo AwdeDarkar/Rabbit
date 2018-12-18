@@ -9,7 +9,7 @@ A RESTful interface with the predictions system.
 **Created**
     10.30.18
 **Updated**
-    11.06.18 by Darkar
+    12.18.18 by Darkar
 **Author**
     Darkar
 **Copyright**
