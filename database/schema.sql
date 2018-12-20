@@ -27,7 +27,7 @@ Columns
 */
 create table predictions (
     id integer primary key autoincrement,
-    created timestamp not null default current_timestamp,
+    created integer not null default current_timestamp,
     description text
 );
 
@@ -57,7 +57,7 @@ create table outcomes (
     id integer primary key autoincrement,
     pid integer not null,
     oid integer not null,
-    created timestamp not null default current_timestamp,
+    created integer not null default current_timestamp,
     foreign key (pid) references predictions (id),
     foreign key (oid) references probabilities (id)
 );

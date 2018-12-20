@@ -62,6 +62,17 @@ class PredictionInterface(DatabaseInterface):
         self.probabilities = {}
         self.outcome = None
 
+    def __str__(self):
+        s = "Prediction {} created on {}".format(self.name,
+                                                 self.created.strftime("%Y-%m-%d %H:%M:%S"))
+        if self.resolved:
+            s += " and resolved on {}".format(self.resolved.strftime("%Y-%m-%d %H:%M:%S"))
+
+        return s
+
+    def __repr__(self):
+        return str(self)
+
     def get_vectors(self, pad=0):
         """
         Returns vectors for the predicted probabilites and, if it exist, a one-hot vector that
@@ -97,7 +108,7 @@ class PredictionInterface(DatabaseInterface):
         result = self._cursor.fetchone()
         if not result: return False
         timestamp, full_description = result
-        self.created = timestamp
+        self.created = datetime.utcfromtimestamp(timestamp)
         desc_lines = full_description.split("\n")
         self.name, self.description = desc_lines[0], "\n".join(full_description[1:])
 
@@ -111,14 +122,14 @@ class PredictionInterface(DatabaseInterface):
             raise KeyError("No row matching the id {} was found".format(self._rid))
 
         find_outcome_query = """ select probabilities.event, outcomes.created
-                                 from probabilites, outcomes
+                                 from probabilities, outcomes
                                  where probabilities.pid = ?
                                  and probabilities.id = outcomes.oid """
         self._cursor.execute(find_outcome_query, (self._rid,))
-        outcome, resolved = self._cursor.fetchone()
-        if outcome and resolved:
-            self.outcome = outcome
-            self.resolved = datetime.utcfromtimestamp(resolved)
+        result = self._cursor.fetchone()
+        if result:
+            self.outcome = result[0]
+            self.resolved = datetime.utcfromtimestamp(result[1])
 
         return True
 
@@ -147,11 +158,12 @@ class PredictionInterface(DatabaseInterface):
 
         else:
             #INSERT
-            insert_predictions_query = """ insert into predictions (created, description)
-                                           values (?, ?) """
+            insert_predictions_query = """ insert into predictions (description, created)
+                                           values (?, strftime('%s', 'now')) """
             timestamp = self.created.timestamp()
             full_description = self.name + "\n" + self.description
-            self._cursor.execute(insert_predictions_query, (timestamp, full_description,))
+            self._cursor.execute(insert_predictions_query, (full_description,))
+            self._rid = self._cursor.lastrowid
             self._cursor.connection.commit()
 
             for event in self.probabilities:
@@ -174,12 +186,10 @@ class PredictionInterface(DatabaseInterface):
                                             where pid = ? """
                 timestamp = self.resolved.timestamp()
                 self._cursor.execute(update_outcomes_query, (timestamp, oid, self._rid,))
-                self._cursor.connection.commit()
             else:
                 insert_outcomes_query = """ insert into outcomes (pid, oid, created)
-                                            values (?, ?, ?) """
-                timestamp = self.resolved.timestamp()
-                self._cursor.execute(insert_outcomes_query, (self._rid, oid, timestamp,))
-                self._cursor.connection.commit()
+                                            values (?, ?, strftime('%s', 'now')) """
+                self._cursor.execute(insert_outcomes_query, (self._rid, oid,))
 
+        self._cursor.connection.commit()
         return True

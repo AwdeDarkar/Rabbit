@@ -65,5 +65,4 @@ def list_all_command():
     db = manage_db.get_db()
     preds = select_list(db)
     for pred in preds:
-        print("listing")
         click.echo(pred)
